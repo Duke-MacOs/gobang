@@ -1,0 +1,20 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+html {
+    font-size: 62.5%;
+    color: #222;
+}
+div{
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+#gobang {
+    border: 1px solid #0078AA;
+    display: block;
+    margin: 50px auto;
+    box-shadow: -2px -2px 2px #F3F2F2, 5px 5px 5px #6F6767;
+}
