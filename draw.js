@@ -8,7 +8,7 @@ function Chess(canvas, context, config) {
         lineColor: config && config.lineColor || '#0078AA'
     }
     this.lines = this.config.width / this.config.step - 1;
-    this.crossData = {};
+    this.crossData = {playermax: {num: '', point: 0}, AImax: {num: '', point: 0}};
 
     this.drawRect();
     this.setCrossData();
@@ -88,7 +88,7 @@ Chess.prototype.setCrossData = function() {
                 continue;
             }
             // 上边线
-            if(i === 1) {
+            if(j === 1) {
                 this.crossData['x' + i + 'y' + j].direction.bottom = {point: 0, order: []};
                 this.crossData['x' + i + 'y' + j].direction.left = {point: 0, order: []};
                 this.crossData['x' + i + 'y' + j].direction.right = {point: 0, order: []};
@@ -97,7 +97,7 @@ Chess.prototype.setCrossData = function() {
                 continue;
             }
             // 下边线
-            if(i === count) {
+            if(j === count) {
                 this.crossData['x' + i + 'y' + j].direction.top = {point: 0, order: []};
                 this.crossData['x' + i + 'y' + j].direction.left = {point: 0, order: []};
                 this.crossData['x' + i + 'y' + j].direction.right = {point: 0, order: []};
@@ -106,7 +106,7 @@ Chess.prototype.setCrossData = function() {
                 continue;
             }
             // 左边线
-            if(j === 1) {
+            if(i === 1) {
                 this.crossData['x' + i + 'y' + j].direction.top = {point: 0, order: []};
                 this.crossData['x' + i + 'y' + j].direction.bottom = {point: 0, order: []};
                 this.crossData['x' + i + 'y' + j].direction.right = {point: 0, order: []};
@@ -115,7 +115,7 @@ Chess.prototype.setCrossData = function() {
                 continue;
             }
             // 右边线
-            if(j === count) {
+            if(i === count) {
                 this.crossData['x' + i + 'y' + j].direction.bottom = {point: 0, order: []};
                 this.crossData['x' + i + 'y' + j].direction.left = {point: 0, order: []};
                 this.crossData['x' + i + 'y' + j].direction.top = {point: 0, order: []};
@@ -179,11 +179,17 @@ window.onload = function() {
 
     var calculate = new Calculate(chess);
     var player1 = new Player(chess);
+    var AI = new Computer(chess);
 
     player1.drawChess = player1.drawChess.after(calculate.setType, 1);
     player1.drawChess = player1.drawChess.after(calculate.hasChess, 1, 2);
     player1.drawChess = player1.drawChess.after(calculate.setPosition, 1, 2);
-    player1.drawChess = player1.drawChess.after(calculate.calculateDirectionOrder.bind(calculate), 1, 2);
+    player1.drawChess = player1.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
+
+    AI.drawChess = AI.drawChess.after(calculate.setType, 1);
+    AI.drawChess = AI.drawChess.after(calculate.hasChess, 1, 2);
+    AI.drawChess = AI.drawChess.after(calculate.setPosition, 1, 2);
+    AI.drawChess = AI.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
 }
 
 
