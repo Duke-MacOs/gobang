@@ -176,6 +176,9 @@ window.onload = function() {
         let num = `x${Math.round(e.offsetX / chess.config.step)}y${Math.round(e.offsetY / chess.config.step)}`;
         Event.trigger('clickCanvas', num)
     }
+    replay.onclick = function() {
+        location.reload()
+    }
 
     var calculate = new Calculate(chess);
     var player1 = new Player(chess);
@@ -185,11 +188,14 @@ window.onload = function() {
     player1.drawChess = player1.drawChess.after(calculate.hasChess, 1, 2);
     player1.drawChess = player1.drawChess.after(calculate.setPosition, 1, 2);
     player1.drawChess = player1.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
+    // player1.drawChess = player1.drawChess.after(calculate.judge.bind(calculate), 1, 2);
+    
 
     AI.drawChess = AI.drawChess.after(calculate.setType, 1);
     AI.drawChess = AI.drawChess.after(calculate.hasChess, 1, 2);
     AI.drawChess = AI.drawChess.after(calculate.setPosition, 1, 2);
     AI.drawChess = AI.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
+    AI.drawChess = AI.drawChess.after(calculate.judge.bind(calculate), 1, 2);
 }
 
 

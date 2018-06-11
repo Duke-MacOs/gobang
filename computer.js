@@ -27,8 +27,8 @@ var drop = {
         console.log('是否允许落子: ' + num)
         var position = drop.getXY(num);
         // 越过边界 or 已经有棋子，则不允许落子
-        if(position.x < 0 || position.x > this.lines) return false;
-        if(position.y < 0 || position.y > this.lines) return false;
+        if(position.x <= 0 || position.x > this.lines) return false;
+        if(position.y <= 0 || position.y > this.lines) return false;
         if(!this.crossData.hasOwnProperty(num) || this.crossData[num].has) return false;
 
         return true;
@@ -144,11 +144,16 @@ Computer.prototype.calculate = function() {
     const playerMax = this.crossData.playermax;
     const AIMax = this.crossData.AImax;
 
-    if(playerMax.point >= AIMax.point) {
+    if(playerMax.point > AIMax.point) {
+        console.info('玩家分数大')
         console.log('最大方向: ' + playerMax.direction)
         var position = drop[playerMax.direction].call(this, playerMax.num);
         console.log('在这个位置落子：')
         console.log(position)
+    }else {
+        console.info('电脑分数大');
+        var position = drop[AIMax.direction].call(this, AIMax.num);
+
     }
     return position;
 };
@@ -156,7 +161,6 @@ Computer.prototype.calculate = function() {
 Computer.prototype.clickCanvas = function() {
     console.log('click Computer')
     if(!this.myTurn) return;
-    console.log(this.crossData);
 
     var position = this.calculate();
     var num = `x${position.x}y${position.y}`;
@@ -165,7 +169,7 @@ Computer.prototype.clickCanvas = function() {
     this.drawChess(position, num, 'AI');
     this.crossData[num].has = true;
     
-
+    console.log(this.crossData);
     Event.trigger('turn');
 };
 

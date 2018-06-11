@@ -12,9 +12,13 @@ div{
     justify-content: center;
     align-self: center;
 }
+.nav {
+    margin-top: 50px;
+}
 #gobang {
     border: 1px solid #0078AA;
     display: block;
     margin: 50px auto;
+    margin-top: 10px;
     box-shadow: -2px -2px 2px #F3F2F2, 5px 5px 5px #6F6767;
 }

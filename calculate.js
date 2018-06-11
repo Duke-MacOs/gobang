@@ -36,6 +36,24 @@ Calculate.prototype.setPosition = function(num) {
     this.crossData[num].position.y = y;
     return this;
 };
+/**
+ * 判决胜负
+ * @return {[type]} [description]
+ */
+Calculate.prototype.judge = function() {
+    const playerMax = this.crossData.playermax;
+    const AIMax = this.crossData.AImax;
+
+    if(playerMax.point >= 1000000) {
+        alert('恭喜您获胜了');
+        canvas.onclick = function() {}
+    }
+    if(AIMax.point >= 1000000) {
+        alert('^@^ 恭喜你输了！')
+        canvas.onclick = function() {}
+    
+    }
+};
 
 /**
  * 计算八个方向数据
@@ -167,6 +185,16 @@ Calculate.prototype.calculatePoint = function(num) {
     const direction = this.crossData[num].direction;
     console.log('进入评分系统')
     for(let key in direction) {
+        var map = {
+            top: 'bottom',
+            right: 'left',
+            bottom: 'top',
+            left: 'right',
+            slant1: 'slant3',
+            slant2: 'slant4',
+            slant3: 'slant1',
+            slant4: 'slant2'
+        };
         var _d = direction[key];
         var first = _d.order[0];
         var type = _d.order.join('-');
@@ -179,10 +207,12 @@ Calculate.prototype.calculatePoint = function(num) {
         }
         // 如果有两种不同颜色的，则分值为-1；
         if((first === 1 && _d.order.includes(first + 1)) || (first === 2 && _d.order.includes(first - 1))){
-             console.info('出现不同颜色棋子')
              _d.point = -1;
              continue;
         }
+
+        // 判定反相相邻的是否有对手棋子
+        var opposite = direction.hasOwnProperty([map[key]]) && direction[map[key]].order.includes(2);
         
         // 单个棋子
         if(`${first}-0-0-0-0` === type) {
@@ -192,14 +222,34 @@ Calculate.prototype.calculatePoint = function(num) {
         if(`${first}-${first}-0-0-0` === type) {
             _d.point = 100;
         }
+        // 两株相隔
+        if(`${first}-0-${first}-0-0` === type) {
+             _d.point = 200;
+        }
         // 三连珠
         if(`${first}-${first}-${first}-0-0` === type) {
             _d.point = 1000;
         }
+         // 三连珠(单向)
+        if(`${first}-${first}-${first}-0-0` === type && opposite) {
+            _d.point = 300;
+        }
+        // 三株相隔
+        if(`${first}-${first}-0-${first}-0` === type) {
+            _d.point = 2000;
+        }
         // 四连珠
         if(`${first}-${first}-${first}-${first}-0` === type) {
             _d.point = 10000;
-        }    
+        }
+        // 四连珠相隔1
+        if(`${first}-${first}-${first}-0-${first}` === type) {
+            _d.point = 20000;
+        }  
+         // 四连珠相隔, 单向被封
+        if(`${first}-0-${first}-${first}-${first}` === type && opposite) {
+            _d.point = 5000;
+        }     
         // 五连珠
         if(`${first}-${first}-${first}-${first}-${first}` === type) {
             _d.point = 1000000;
@@ -208,15 +258,14 @@ Calculate.prototype.calculatePoint = function(num) {
         // player or AI 作前缀
         var pre = `${this.crossData[num].type}max`;
         var _num = this.crossData[pre].num || num;
-        var _direction = this.crossData[pre].direction || 'top';
+        var _direction = this.crossData[pre].direction || key;
         // 如果大于最高评分，则替换
         if(_d.point >= this.crossData[_num].direction[_direction].point) {
             this.crossData[pre].num = num;
             this.crossData[pre].point = _d.point;
             this.crossData[pre].direction = key;
         }   
-        console.log('在评分系统内：')
-        console.log(this.crossData) 
+       
         
     }
 }
