@@ -154,7 +154,7 @@ Chess.prototype.drawChess = function() {
 }
 
 var canvas = document.getElementById('gobang');
-
+canvas.setAttribute('disabled', true);
 window.onload = function() {
     var canvasConfig = {
         width: 480,
@@ -172,10 +172,7 @@ window.onload = function() {
     }
     var context = initCanvas(canvas, canvasConfig.width, canvasConfig.height);
     var chess = new Chess(canvas, context);
-    canvas.onclick = function(e) {
-        let num = `x${Math.round(e.offsetX / chess.config.step)}y${Math.round(e.offsetY / chess.config.step)}`;
-        Event.trigger('clickCanvas', num)
-    }
+    
 
     document.getElementById('replay').onclick = function() {
         location.reload();
@@ -192,13 +189,21 @@ window.onload = function() {
         }
     })();
 
-    // doublePlay.onclick = function() {
-    //     webSocket(chess)
-    // }
+    document.getElementById('double').onclick = function() {
+        webSocket(chess);
+    };
+
+
     var calculate = new Calculate(chess);
 
     function singlePlay(chess) {
+        canvas.onclick = function(e) {
+            let num = `x${Math.round(e.offsetX / chess.config.step)}y${Math.round(e.offsetY / chess.config.step)}`;
+            Event.trigger('clickCanvas', num)
+        }
+
         console.log('new')
+
         var player1 = new Player(chess);
         var AI = new Computer(chess);
 
@@ -219,20 +224,23 @@ window.onload = function() {
         var play1;
         var play2;
 
-        function createPlayer(chess, option) {
+        function createPlayer(chess, option, ws) {
             var player = new Player(chess, option);
+
+            player.sendWebSocket = player.sendWebSocket(ws);
 
             player.drawChess = player.drawChess.after(calculate.setType, 1);
             player.drawChess = player.drawChess.after(calculate.hasChess, 1, 2);
             player.drawChess = player.drawChess.after(calculate.setPosition, 1, 2);
             player.drawChess = player.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
+            player.drawChess = player.drawChess.after(player.sendWebSocket);
             player.drawChess = player.drawChess.after(calculate.judge.bind(calculate), 1, 2);
         
             return player;
         }
 
 
-        var websocket = new WebSocket("ws://localhost: 3000/");
+        var websocket = new WebSocket("ws://localhost:3000/");
         websocket.onopen = function() { 
             console.log('websocket open ');
 
@@ -241,14 +249,28 @@ window.onload = function() {
             console.log('websocket close ');
         }
         websocket.onmessage = function(e) {
-            console.log(e.data);
+            console.log(e)
             if(e.data === '1') {
-                play1 = createPlayer(chess);
-                play2 = createPlayer(chess, {turn: false, color: '#ccc'});
+                play1 = createPlayer(chess, null, websocket);
+                play2 = createPlayer(chess, {turn: false, color: '#ccc'}, websocket);
+                console.log(play1)
+                    console.log(play2)
+                return;
             }else if(e.data === '2') {
-                play1 = createPlayer(chess, {turn: false});
-                play2 = createPlayer(chess, {color: '#ccc'});
+                if(!play1) play1 = createPlayer(chess, {turn: false}, websocket);
+                if(!play2) play2 = createPlayer(chess, {color: '#ccc'}, websocket);
+                
+                canvas.onclick = function(event) {
+                    let num = `x${Math.round(event.offsetX / chess.config.step)}y${Math.round(event.offsetY / chess.config.step)}`;
+                    Event.trigger('clickCanvas', num)
+                    console.log(play1)
+                    console.log(play2)
+                }
+
+                return;
             }
+            Event.trigger('clickCanvas', JSON.parse(e.data))
+            Event.trigger('turn')
         }
     }
 

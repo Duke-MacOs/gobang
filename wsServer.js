@@ -9,17 +9,18 @@ var server = ws.createServer(function (conn) {
     clientCount++
     if(clientCount > 2) return;
     conn.nickname = 'user' + clientCount;
-    broadcast(clientCount);
+    broadcast(JSON.stringify(clientCount));
     conn.on("text", function (str) {
-        console.log("Received "+str)
-        broadcast(str);        
+        console.log(JSON.stringify(str))
+        console.log("Received: "+str)
+        broadcast(JSON.stringify(str));        
     })
     conn.on("close", function (code, reason) {
         console.log("Connection closed")
         broadcast(conn.nickname + 'left')
     })
     conn.on("error", function(err) {
-        conosle.log('handle error');
+        console.log('handle error');
         console.log(err)
     })
 }).listen(PORT)
