@@ -1,0 +1,16 @@
+/node_modules
+/dist
+/.tmp
+/.sass-cache
+/.idea
+!/bower_components
+/bower_components/*
+!/bower_components/smalot-bootstrap-datetimepicker
+/bower_components/smalot-bootstrap-datetimepicker/*
+!/bower_components/smalot-bootstrap-datetimepicker/js
+/bower_components/smalot-bootstrap-datetimepicker/js/*
+!/bower_components/smalot-bootstrap-datetimepicker/js/locales
+/bower_components/smalot-bootstrap-datetimepicker/js/locales/*
+!/bower_components/smalot-bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js
+apiServer.bat
+gruntServer.bat

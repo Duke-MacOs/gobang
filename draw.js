@@ -176,26 +176,83 @@ window.onload = function() {
         let num = `x${Math.round(e.offsetX / chess.config.step)}y${Math.round(e.offsetY / chess.config.step)}`;
         Event.trigger('clickCanvas', num)
     }
-    replay.onclick = function() {
-        location.reload()
+
+    document.getElementById('replay').onclick = function() {
+        location.reload();
+    };
+
+    document.getElementById('single').onclick = (function() {
+        var count = 0;
+        return function() {
+            console.log(count)
+            if(count === 0) {
+                singlePlay(chess);
+                count++;
+            }
+        }
+    })();
+
+    // doublePlay.onclick = function() {
+    //     webSocket(chess)
+    // }
+    var calculate = new Calculate(chess);
+
+    function singlePlay(chess) {
+        console.log('new')
+        var player1 = new Player(chess);
+        var AI = new Computer(chess);
+
+        player1.drawChess = player1.drawChess.after(calculate.setType, 1);
+        player1.drawChess = player1.drawChess.after(calculate.hasChess, 1, 2);
+        player1.drawChess = player1.drawChess.after(calculate.setPosition, 1, 2);
+        player1.drawChess = player1.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
+        
+        AI.drawChess = AI.drawChess.after(calculate.setType, 1);
+        AI.drawChess = AI.drawChess.after(calculate.hasChess, 1, 2);
+        AI.drawChess = AI.drawChess.after(calculate.setPosition, 1, 2);
+        AI.drawChess = AI.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
+        AI.drawChess = AI.drawChess.after(calculate.judge.bind(calculate), 1, 2);
+    };
+
+    function webSocket(chess) {
+        var calculate = new Calculate(chess);
+        var play1;
+        var play2;
+
+        function createPlayer(chess, option) {
+            var player = new Player(chess, option);
+
+            player.drawChess = player.drawChess.after(calculate.setType, 1);
+            player.drawChess = player.drawChess.after(calculate.hasChess, 1, 2);
+            player.drawChess = player.drawChess.after(calculate.setPosition, 1, 2);
+            player.drawChess = player.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
+            player.drawChess = player.drawChess.after(calculate.judge.bind(calculate), 1, 2);
+        
+            return player;
+        }
+
+
+        var websocket = new WebSocket("ws://localhost: 3000/");
+        websocket.onopen = function() { 
+            console.log('websocket open ');
+
+        }
+        websocket.onclose = function() {
+            console.log('websocket close ');
+        }
+        websocket.onmessage = function(e) {
+            console.log(e.data);
+            if(e.data === '1') {
+                play1 = createPlayer(chess);
+                play2 = createPlayer(chess, {turn: false, color: '#ccc'});
+            }else if(e.data === '2') {
+                play1 = createPlayer(chess, {turn: false});
+                play2 = createPlayer(chess, {color: '#ccc'});
+            }
+        }
     }
 
-    var calculate = new Calculate(chess);
-    var player1 = new Player(chess);
-    var AI = new Computer(chess);
-
-    player1.drawChess = player1.drawChess.after(calculate.setType, 1);
-    player1.drawChess = player1.drawChess.after(calculate.hasChess, 1, 2);
-    player1.drawChess = player1.drawChess.after(calculate.setPosition, 1, 2);
-    player1.drawChess = player1.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
-    // player1.drawChess = player1.drawChess.after(calculate.judge.bind(calculate), 1, 2);
     
-
-    AI.drawChess = AI.drawChess.after(calculate.setType, 1);
-    AI.drawChess = AI.drawChess.after(calculate.hasChess, 1, 2);
-    AI.drawChess = AI.drawChess.after(calculate.setPosition, 1, 2);
-    AI.drawChess = AI.drawChess.after(calculate.reCalculate.bind(calculate), 1, 2);
-    AI.drawChess = AI.drawChess.after(calculate.judge.bind(calculate), 1, 2);
 }
 
 

@@ -1,8 +1,9 @@
-function Player(Chess) {
+function Player(Chess, option) {
     this.canvas = Chess.canvas;
     this.context = Chess.context;
     this.crossData = Chess.crossData;
-    this.myTurn = true;
+    this.myTurn = option && option.turn || true;
+    this.color = option && option.color || 'black';
     Event.addListener('clickCanvas', this.clickCanvas.bind(this));
     Event.addListener('turn', this.turn.bind(this));
 }
