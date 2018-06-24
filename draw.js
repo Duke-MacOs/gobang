@@ -1,6 +1,7 @@
 function Chess(canvas, context, config) {
     this.canvas = canvas;
     this.context = context;
+    this.master = null;
     this.config = {
         width: config && config.width || 480,
         height: config && config.height || 480,
@@ -239,6 +240,14 @@ window.onload = function() {
             return player;
         }
 
+        function checkPlayerNum(e) {
+           return e.data === '1' ? 1 : 2;
+        }
+
+        function ctrlCanvasAllowClick(event) {
+            
+        }
+
 
         var websocket = new WebSocket("ws://localhost:3000/");
         websocket.onopen = function() { 
@@ -249,28 +258,38 @@ window.onload = function() {
             console.log('websocket close ');
         }
         websocket.onmessage = function(e) {
+            // 判断玩家数量，提示信息控制
+            var num = checkPlayerNum(e);
+            notice.style.visibility = num === 2 ? 'hidden' : 'unset';
+            
             console.log(e)
             if(e.data === '1') {
                 play1 = createPlayer(chess, null, websocket);
                 play2 = createPlayer(chess, {turn: false, color: '#ccc'}, websocket);
                 console.log(play1)
-                    console.log(play2)
+                console.log(play2)
+                chess.master = play1;
                 return;
             }else if(e.data === '2') {
                 if(!play1) play1 = createPlayer(chess, {turn: false}, websocket);
                 if(!play2) play2 = createPlayer(chess, {color: '#ccc'}, websocket);
-                
-                canvas.onclick = function(event) {
+                chess.master = play2;
+            }
+
+            if(chess.master !== JSON.parse(e.data).who) {
+                canvas.onclick = function() {
                     let num = `x${Math.round(event.offsetX / chess.config.step)}y${Math.round(event.offsetY / chess.config.step)}`;
                     Event.trigger('clickCanvas', num)
                     console.log(play1)
                     console.log(play2)
-                }
-
-                return;
+                };
+            }else {
+                canvas.onclick = function() {};
             }
             Event.trigger('clickCanvas', JSON.parse(e.data))
-            Event.trigger('turn')
+            Event.trigger('turn');
+
+           
         }
     }
 

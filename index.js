@@ -34,7 +34,7 @@ Player.prototype.clickCanvas = function(num) {
 Player.prototype.sendWebSocket = function(ws) {
     return function(position) {
         var num = `x${position.x}y${position.y}`
-        ws.send(num);
+        ws.send({num, who: this});
     }
 }
 
